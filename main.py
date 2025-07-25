@@ -6,16 +6,19 @@ FOV = math.pi / 3
 HALF_FOV = FOV / 2
 NUM_RAYS = WIDTH // 2
 DELTA_ANGLE = FOV / NUM_RAYS
-MAX_DEPTH = 20
+MAX_DEPTH = 30
 SCALE = WIDTH // NUM_RAYS
 
 MAP = [
-    '########',
-    '#      #',
-    '#      #',
-    '#  ##  #',
-    '#      #',
-    '########'
+    '############',
+    '#          #',
+    '#  ##      #',
+    '#     ###  #',
+    '#   ##     #',
+    '#          #',
+    '#   ###    #',
+    '#          #',
+    '############'
 ]
 TILE = 1
 
@@ -58,28 +61,43 @@ def render():
         canvas.create_rectangle(x, (HEIGHT - proj_height) // 2,
                                x + SCALE, (HEIGHT + proj_height) // 2,
                                fill=color, outline=color)
-    root.after(30, render)
+    root.after(16, render)
 
 
-def move(event):
+pressed_keys = set()
+
+
+def key_press(event):
+    pressed_keys.add(event.keysym)
+
+
+def key_release(event):
+    pressed_keys.discard(event.keysym)
+
+
+def update():
     global player_x, player_y, player_angle
-    step = 0.1
-    if event.keysym == 'Up':
+    step = 0.05
+    rot = 0.05
+    if 'Up' in pressed_keys:
         nx = player_x + math.cos(player_angle) * step
         ny = player_y + math.sin(player_angle) * step
         if MAP[int(ny)][int(nx)] == ' ':
             player_x, player_y = nx, ny
-    elif event.keysym == 'Down':
+    if 'Down' in pressed_keys:
         nx = player_x - math.cos(player_angle) * step
         ny = player_y - math.sin(player_angle) * step
         if MAP[int(ny)][int(nx)] == ' ':
             player_x, player_y = nx, ny
-    elif event.keysym == 'Left':
-        player_angle -= 0.1
-    elif event.keysym == 'Right':
-        player_angle += 0.1
+    if 'Left' in pressed_keys:
+        player_angle -= rot
+    if 'Right' in pressed_keys:
+        player_angle += rot
+    root.after(16, update)
 
 
-root.bind('<KeyPress>', move)
+root.bind('<KeyPress>', key_press)
+root.bind('<KeyRelease>', key_release)
+update()
 render()
 root.mainloop()
