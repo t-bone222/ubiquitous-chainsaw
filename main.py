@@ -1,8 +1,8 @@
 diff --git a/main.py b/main.py
-index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6cac45b795 100644
+index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..63f8d7d90fd5880fa03f1022781ec183b66a670c 100644
 --- a/main.py
 +++ b/main.py
-@@ -1,103 +1,212 @@
+@@ -1,103 +1,222 @@
  import tkinter as tk
 -import math
 -
@@ -24,6 +24,7 @@ index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6c
 -    '#   ###    #',
 -    '#          #',
 -    '############'
++from tkinter import messagebox
 +
 +TILE_SIZE = 32
 +WORLD_MAP = [
@@ -186,6 +187,7 @@ index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6c
 +
 +        self.root.bind("<KeyPress>", self.on_key)
 +        self.draw()
++        self.status.set(self.nearby_npc_message())
 +
 +    def active_map(self):
 +        if self.interior_id:
@@ -207,7 +209,10 @@ index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6c
 +        game_map = self.active_map()
 +        if y < 0 or y >= len(game_map) or x < 0 or x >= len(game_map[0]):
 +            return "#"
-+        return game_map[y][x]
++        row = game_map[y]
++        if x >= len(row):
++            return "#"
++        return row[x]
 +
 +    def can_walk(self, tile):
 +        return tile != "#"
@@ -265,9 +270,7 @@ index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6c
 +        elif key == "q":
 +            self.exit_building()
 +
-+        npc_line = self.nearby_npc_message()
-+        if "entered" not in self.status.get().lower() and "stand on" not in self.status.get().lower() and "left" not in self.status.get().lower():
-+            self.status.set(npc_line)
++        self.status.set(self.nearby_npc_message())
 +        self.draw()
 +
 +    def draw_tile(self, x, y, tile):
@@ -315,4 +318,11 @@ index 10222f5f1ebb374d3d0f7cdab4c72090a3cce048..35c482581ce091a39409faf40fbaad6c
 +
 +
 +if __name__ == "__main__":
-+    ArenaPOC().root.mainloop()
++    try:
++        app = ArenaPOC()
++        app.root.mainloop()
++    except Exception as exc:
++        root = tk.Tk()
++        root.withdraw()
++        messagebox.showerror("Arena demo error", f"The game could not start:\n\n{exc}")
++        raise
